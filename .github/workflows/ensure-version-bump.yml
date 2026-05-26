@@ -71,7 +71,10 @@ jobs:
           MINOR_DIFF=$((PR_MINOR - BASE_MINOR))
           PATCH_DIFF=$((PR_PATCH - BASE_PATCH))
 
-          # Error if major skips by 2+ or minor skips by 2+ when major stays same
+          # Error if:
+          # 1. Major version skips by 2+
+          # 2. Minor version skips by 2+ (when major is identical)
+          # 3. Patch version skips by 2+ (when major and minor are identical)
           if [ "$MAJOR_DIFF" -gt 1 ] || \
           { [ "$MAJOR_DIFF" -eq 0 ] && [ "$MINOR_DIFF" -gt 1 ]; } || \
           { [ "$MAJOR_DIFF" -eq 0 ] && [ "$MINOR_DIFF" -eq 0 ] && [ "$PATCH_DIFF" -gt 1 ]; }; then
