@@ -11,29 +11,27 @@ on:
         description: "Set the branch name to run on"
         required: true
 
+
 jobs:
   check-version:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout PR Branch
-        uses: actions/checkout@v4
-
-      - name: Get PR Version
-        id: pr_version
-        run: |
-          PR_VERSION=$(grep -m 1 '^version' pyproject.toml | tr -d '"' | tr -d "'" | awk '{print $3}')
-          echo "version=$PR_VERSION" >> $GITHUB_OUTPUT
-
-      - name: Checkout Target Branch
+      - name: Checkout code
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.base_ref }}
+          fetch-depth: 0
 
       - name: Get base branch version
         id: base_version
         run: |
           BASE_VERSION=$(grep -m 1 '^version' pyproject.toml | tr -d '"' | tr -d "'" | awk '{print $3}')
           echo "version=$BASE_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Get PR Version
+        id: pr_version
+        run: |
+          PR_VERSION=$(grep -m 1 '^version' pyproject.toml | tr -d '"' | tr -d "'" | awk '{print $3}')
+          echo "version=$PR_VERSION" >> $GITHUB_OUTPUT
 
       - name: Compare Versions
         run: |
