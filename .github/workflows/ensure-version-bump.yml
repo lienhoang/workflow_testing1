@@ -12,32 +12,38 @@ on:
         required: true
 
 jobs:
-  version-check:
-      runs-on: ubuntu-latest
-      steps:
-        - name: Checkout code
-          uses: actions/checkout@v4
-          with:
-            fetch-depth: 0
+  check-version:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR Branch
+        uses: actions/checkout@v4
 
-        - name: Get base branch version
-          id: base
-          run: |
-            git show origin/${{ github.base_ref }}:pyproject.toml > base.toml
-            BASE_VERSION=$(grep '^version' base.toml | sed 's/version *= *"//;s/"//')
-            echo "base_version=$BASE_VERSION" >> $GITHUB_OUTPUT
+      - name: Get PR Version
+        id: pr_version
+        run: |
+          VERSION=$(grep -m 1 '^version' pyproject.toml | tr -d '"' | tr -d "'" | awk '{print $3}')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
 
-        - name: Get PR version
-          id: pr
-          run: |
-            PR_VERSION=$(grep '^version' pyproject.toml | sed 's/version *= *"//;s/"//')
-            echo "pr_version=$PR_VERSION" >> $GITHUB_OUTPUT
+      - name: Checkout Target Branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.base_ref }}
 
-        - name: Compare versions
-          run: |
-            if [ "${{ steps.base.outputs.base_version }}" = "${{ steps.pr.outputs.pr_version }}" ]; then
-              echo "::warning::Version in pyproject.toml has not been incremented!"
-              exit 1
-            else
-              echo "✅ Version increment detected: ${{ steps.base.outputs.base_version }} → ${{ steps.pr.outputs.pr_version }}"
-            fi
+      - name: Get Target Branch Version
+        id: target_version
+        run: |
+          VERSION=$(grep -m 1 '^version' pyproject.toml | tr -d '"' | tr -d "'" | awk '{print $3}')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Compare Versions
+        run: |
+          PR_VER="${{ steps.pr_version.outputs.version }}"
+          TARGET_VER="${{ steps.target_version.outputs.version }}"
+          
+          echo "PR Version: $PR_VER"
+          echo "Target Version: $TARGET_VER"
+          
+          if [ "$PR_VER" = "$TARGET_VER" ]; then
+            echo "Error: You must bump the version in pyproject.toml before merging."
+            exit 1
+          fi
