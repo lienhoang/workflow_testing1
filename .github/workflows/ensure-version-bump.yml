@@ -21,7 +21,7 @@ jobs:
       - name: Get PR Version
         id: pr_version
         run: |
-          VERSION=$(grep -m 1 '^version' pyproject.toml | tr -d '"' | tr -d "'" | awk '{print $3}')
+          PR_VERSION=$(grep -m 1 '^version' pyproject.toml | tr -d '"' | tr -d "'" | awk '{print $3}')
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Checkout Target Branch
@@ -29,21 +29,21 @@ jobs:
         with:
           ref: ${{ github.base_ref }}
 
-      - name: Get Target Branch Version
-        id: target_version
+      - name: Get base branch version
+        id: base_version
         run: |
           VERSION=$(grep -m 1 '^version' pyproject.toml | tr -d '"' | tr -d "'" | awk '{print $3}')
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Compare Versions
         run: |
-          PR_VER="${{ steps.pr_version.outputs.version }}"
-          TARGET_VER="${{ steps.target_version.outputs.version }}"
+          PR_VERSION="${{ steps.pr_version.outputs.version }}"
+          BASE_VERSION="${{ steps.base_version.outputs.version }}"
           
-          echo "PR Version: $PR_VER"
-          echo "Target Version: $TARGET_VER"
+          echo "PR Version: $PR_VERSION"
+          echo "Base Version: $BASE_VERSION"
           
-          if [ "$PR_VER" = "$TARGET_VER" ]; then
+          if [ "$PR_VERSION" = "$BASE_VERSION" ]; then
             echo "Error: You must bump the version in pyproject.toml before merging."
             exit 1
           fi
