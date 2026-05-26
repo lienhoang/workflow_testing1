@@ -60,17 +60,24 @@ jobs:
           # Extract major and minor numbers using cut
           BASE_MAJOR=$(echo "$BASE_VERSION" | cut -d. -f1)
           BASE_MINOR=$(echo "$BASE_VERSION" | cut -d. -f2)
-          
+          BASE_PATCH=$(echo "$BASE_VERSION" | cut -d. -f3)
+
           PR_MAJOR=$(echo "$PR_VERSION" | cut -d. -f1)
           PR_MINOR=$(echo "$PR_VERSION" | cut -d. -f2)
+          PR_PATCH=$(echo "$PR_VERSION" | cut -d. -f3)
 
           # Calculate differences
           MAJOR_DIFF=$((PR_MAJOR - BASE_MAJOR))
           MINOR_DIFF=$((PR_MINOR - BASE_MINOR))
+          PATCH_DIFF=$((PR_PATCH - BASE_PATCH))
 
           # Error if major skips by 2+ or minor skips by 2+ when major stays same
-          if [ "$MAJOR_DIFF" -gt 1 ] || { [ "$MAJOR_DIFF" -eq 0 ] && [ "$MINOR_DIFF" -gt 1 ]; }; then
-            echo "::error::PR Version ($PR_VERSION) is too high. You skipped a major or minor version relative to Base ($BASE_VERSION)."
+          if [ "$MAJOR_DIFF" -gt 1 ] || \
+          { [ "$MAJOR_DIFF" -eq 0 ] && [ "$MINOR_DIFF" -gt 1 ]; } || \
+          { [ "$MAJOR_DIFF" -eq 0 ] && [ "$MINOR_DIFF" -eq 0 ] && [ "$PATCH_DIFF" -gt 1 ]; }; then
+            echo "::error::PR Version ($PR_VERSION) is too high. You skipped a major, minor, or patch version relative to Base ($BASE_VERSION)."
             exit 1
           fi
+
+          echo "Version check passed successfully!"
                
