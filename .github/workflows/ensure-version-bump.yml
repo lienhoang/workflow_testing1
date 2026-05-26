@@ -22,7 +22,7 @@ jobs:
         id: pr_version
         run: |
           PR_VERSION=$(grep -m 1 '^version' pyproject.toml | tr -d '"' | tr -d "'" | awk '{print $3}')
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "version=$PR_VERSION" >> $GITHUB_OUTPUT
 
       - name: Checkout Target Branch
         uses: actions/checkout@v4
@@ -32,8 +32,8 @@ jobs:
       - name: Get base branch version
         id: base_version
         run: |
-          VERSION=$(grep -m 1 '^version' pyproject.toml | tr -d '"' | tr -d "'" | awk '{print $3}')
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          BASE_VERSION=$(grep -m 1 '^version' pyproject.toml | tr -d '"' | tr -d "'" | awk '{print $3}')
+          echo "version=$BASE_VERSION" >> $GITHUB_OUTPUT
 
       - name: Compare Versions
         run: |
