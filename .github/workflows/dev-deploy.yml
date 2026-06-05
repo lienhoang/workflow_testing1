@@ -6,12 +6,14 @@ on:
       - "**"
     paths-ignore:
       - "notebooks/**"
+      - '.github/workflows/**'
 
   pull_request:
     branches:
       - '**'
     paths-ignore:
       - 'notebooks/**'
+      - '.github/workflows/**'
 
 jobs:
   python_format_and_test:
