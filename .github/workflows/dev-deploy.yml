@@ -7,6 +7,12 @@ on:
     paths-ignore:
       - "notebooks/**"
 
+  pull_request:
+    branches:
+      - '**'
+    paths-ignore:
+      - 'notebooks/**'
+
 jobs:
   python_format_and_test:
     runs-on: ubuntu-latest
