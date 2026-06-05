@@ -8,13 +8,6 @@ on:
     paths-ignore:
       - "notebooks/**" 
 
-  workflow_dispatch:
-    inputs:
-      branch-name:
-        type: string
-        description: "Set the branch name to run on"
-        required: true
-
 jobs:
   check-version:
     runs-on: ubuntu-latest
