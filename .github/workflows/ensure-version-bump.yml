@@ -4,6 +4,8 @@ on:
   pull_request:
     branches:
       - main
+    paths-ignore:
+      - "notebooks/**"     
   workflow_dispatch:
     inputs:
       branch-name:
