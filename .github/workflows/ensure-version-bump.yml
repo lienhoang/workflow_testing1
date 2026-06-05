@@ -1,11 +1,17 @@
 name: Verify Version Bump
 
 on:
+
+  push:
+      branches:
+        - '**'
+      paths-ignore:
+        - 'notebooks/**'
+
   pull_request:
     branches:
       - main
-    paths-ignore:
-      - "notebooks/**"     
+
   workflow_dispatch:
     inputs:
       branch-name:
