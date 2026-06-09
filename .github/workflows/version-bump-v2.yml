@@ -1,0 +1,114 @@
+name: CI Pipeline
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  # Job 1: Check which files changed
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      run_ci: ${{ steps.filter.outputs.src }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            src:
+              - '!notebooks/**''  # Ignore notebooks
+              - '!.github/workflows/**'
+
+  # Job 2: Your actual test suite (Runs only if non-notebook changes exist)
+  check-version-new:
+    needs: changes
+    if: ${{ needs.changes.outputs.run_ci == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR Branch
+        uses: actions/checkout@v6
+
+      - name: Get PR Version
+        id: pr_version
+        run: |
+          PR_VERSION=$(grep -m 1 '^version' pyproject.toml | tr -d '"' | tr -d "'" | awk '{print $3}')
+          echo "version=$PR_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Checkout base Branch
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.base_ref }}
+
+      - name: Get base branch version
+        id: base_version
+        run: |
+          BASE_VERSION=$(grep -m 1 '^version' pyproject.toml | tr -d '"' | tr -d "'" | awk '{print $3}')
+          echo "version=$BASE_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Compare Versions
+        run: |
+          PR_VERSION="${{ steps.pr_version.outputs.version }}"
+          BASE_VERSION="${{ steps.base_version.outputs.version }}"
+
+          echo "PR Version: $PR_VERSION"
+          echo "Base Version: $BASE_VERSION"
+
+          # 1. Check if versions are identical
+          if [ "$PR_VERSION" = "$BASE_VERSION" ]; then
+            echo "Error: You must bump the version in pyproject.toml before merging."
+            exit 1
+          fi
+
+          # 2. Check if PR version is lower than base version
+          LOWEST_VERSION=$(printf '%s\n%s' "$PR_VERSION" "$BASE_VERSION" | sort -V | head -n1)
+          if [ "$LOWEST_VERSION" = "$PR_VERSION" ]; then
+            echo "Error: PR Version ($PR_VERSION) cannot be lower than Base Version ($BASE_VERSION)."
+            exit 1
+          fi
+
+          # 3. Check if PR version is too high (Skipping versions)
+          # Extract major and minor numbers using cut
+          BASE_MAJOR=$(echo "$BASE_VERSION" | cut -d. -f1)
+          BASE_MINOR=$(echo "$BASE_VERSION" | cut -d. -f2)
+          BASE_PATCH=$(echo "$BASE_VERSION" | cut -d. -f3)
+
+          PR_MAJOR=$(echo "$PR_VERSION" | cut -d. -f1)
+          PR_MINOR=$(echo "$PR_VERSION" | cut -d. -f2)
+          PR_PATCH=$(echo "$PR_VERSION" | cut -d. -f3)
+
+          # Calculate differences
+          MAJOR_DIFF=$((PR_MAJOR - BASE_MAJOR))
+          MINOR_DIFF=$((PR_MINOR - BASE_MINOR))
+          PATCH_DIFF=$((PR_PATCH - BASE_PATCH))
+
+          # Error if:
+          # 1. Major version skips by 2+
+          # 2. Minor version skips by 2+ (when major is identical)
+          # 3. Patch version skips by 2+ (when major and minor are identical)
+          if [ "$MAJOR_DIFF" -gt 1 ] || \
+          { [ "$MAJOR_DIFF" -eq 0 ] && [ "$MINOR_DIFF" -gt 1 ]; } || \
+          { [ "$MAJOR_DIFF" -eq 0 ] && [ "$MINOR_DIFF" -eq 0 ] && [ "$PATCH_DIFF" -gt 1 ]; }; then
+            echo "Error: PR Version ($PR_VERSION) is too high. You skipped a major, minor, or patch version relative to Base ($BASE_VERSION)."
+            exit 1
+          fi
+
+          echo "Version check passed successfully!"
+
+
+  # Job 3: The Gateway Check (This is what you require in GitHub Settings)
+  ci-status-check:
+    needs: [changes, check-version-new]
+    if: always() # Forces this job to run regardless of ignored paths
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify pipeline status
+        run: |
+          # If Job 2 was skipped because of notebook changes, this passes safely
+          if [ "${{ needs.check-version-new.result }}" = "success" ] || [ "${{ needs.check-version-new.result }}" = "skipped" ]; then
+            echo "All required checks cleared."
+            exit 0
+          else
+            echo "CI pipeline failed."
+            exit 1
+          fi
