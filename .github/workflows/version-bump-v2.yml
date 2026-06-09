@@ -10,15 +10,15 @@ jobs:
   changes:
     runs-on: ubuntu-latest
     outputs:
-      run_ci: ${{ steps.filter.outputs.src }}
+      run_ci: ${{ steps.filter.outputs.any_changed }}
     steps:
       - uses: actions/checkout@v4
-      - uses: dorny/paths-filter@v3
+      - uses: tj-actions/changed-files@v45
         id: filter
         with:
-          filters: |
-            src:
-              - '!(notebooks|.github/workflows)/**'
+          files_ignore: |
+            notebooks/**
+            .github/workflows/**
               
   # Job 2: Your actual test suite (Runs only if non-notebook changes exist)
   check-version-new:
