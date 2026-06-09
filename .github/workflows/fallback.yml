@@ -16,4 +16,4 @@ jobs:
     if: ${{ github.event_name == 'pull_request' }} 
     steps:
       - name: Auto-pass for ignored paths
-        run: echo "Only notebooks changed. Instantly passing status check."
+        run: echo "Only notebooks changed. Instantly passing status check f."
