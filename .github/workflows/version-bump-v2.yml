@@ -105,7 +105,7 @@ jobs:
       - name: Verify pipeline status
         run: |
           # If Job 2 was skipped because of notebook changes, this passes safely
-          if [ "${{ needs.check-version-new.result }}" = "success" ] || [ changes.outputs.run_ci == 'true' ]; then
+          if [ "${{ needs.check-version-new.result }}" = "success" ] || [ changes.outputs.run_ci == 'false' ]; then
             echo "All required checks cleared."
             exit 0
           else
