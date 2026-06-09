@@ -17,7 +17,8 @@ jobs:
         with:
           filters: |
             src:
-              - '!notebooks/**'  # Ignore notebooks
+              - '**'
+              - '!notebooks/**'
               - '!.github/workflows/**'
 
   # Job 2: Your actual test suite (Runs only if non-notebook changes exist)
