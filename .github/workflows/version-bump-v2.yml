@@ -1,21 +1,33 @@
-name: Verify Version Bump
+name: CI Pipeline
 
 on:
-      
   pull_request:
-    branches:
-      - main
-      - "**"
-    paths-ignore:
-      - "notebooks/**" 
-      - '.github/workflows/**'
+    branches: [main]
+
 
 jobs:
-  check-version:
+  # Job 1: Check which files changed
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      run_ci: ${{ steps.filter.outputs.any_changed }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: tj-actions/changed-files@v45
+        id: filter
+        with:
+          files_ignore: |
+            notebooks/**
+            .github/workflows/**
+              
+  # Job 2: Your actual test suite (Runs only if non-notebook changes exist)
+  check-version-new:
+    needs: changes
+    if: ${{ needs.changes.outputs.run_ci == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout PR Branch
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Get PR Version
         id: pr_version
@@ -24,7 +36,7 @@ jobs:
           echo "version=$PR_VERSION" >> $GITHUB_OUTPUT
 
       - name: Checkout base Branch
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: ${{ github.base_ref }}
 
@@ -38,7 +50,7 @@ jobs:
         run: |
           PR_VERSION="${{ steps.pr_version.outputs.version }}"
           BASE_VERSION="${{ steps.base_version.outputs.version }}"
-          
+
           echo "PR Version: $PR_VERSION"
           echo "Base Version: $BASE_VERSION"
 
@@ -51,7 +63,7 @@ jobs:
           # 2. Check if PR version is lower than base version
           LOWEST_VERSION=$(printf '%s\n%s' "$PR_VERSION" "$BASE_VERSION" | sort -V | head -n1)
           if [ "$LOWEST_VERSION" = "$PR_VERSION" ]; then
-            echo "::error::PR Version ($PR_VERSION) cannot be lower than Base Version ($BASE_VERSION)."
+            echo "Error: PR Version ($PR_VERSION) cannot be lower than Base Version ($BASE_VERSION)."
             exit 1
           fi
 
@@ -77,9 +89,28 @@ jobs:
           if [ "$MAJOR_DIFF" -gt 1 ] || \
           { [ "$MAJOR_DIFF" -eq 0 ] && [ "$MINOR_DIFF" -gt 1 ]; } || \
           { [ "$MAJOR_DIFF" -eq 0 ] && [ "$MINOR_DIFF" -eq 0 ] && [ "$PATCH_DIFF" -gt 1 ]; }; then
-            echo "::error::PR Version ($PR_VERSION) is too high. You skipped a major, minor, or patch version relative to Base ($BASE_VERSION)."
+            echo "Error: PR Version ($PR_VERSION) is too high. You skipped a major, minor, or patch version relative to Base ($BASE_VERSION)."
             exit 1
           fi
 
           echo "Version check passed successfully!"
-               
+
+
+  # Job 3: The Gateway Check (This is what you require in GitHub Settings)
+  ci-status-check:
+    needs: [changes, check-version-new]
+    if: always() # Forces this job to run regardless of ignored paths
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify pipeline status
+        run: |
+          # If Job 2 was skipped because of notebook changes, this passes safely
+          VERSION_RESULT="${{ needs.check-version-new.result }}"
+
+          if [ "$VERSION_RESULT" = "success" ] || [ "$VERSION_RESULT" = "skipped" ]; then
+            echo "All required checks cleared."
+            exit 0
+          else
+            echo "CI pipeline failed."
+            exit 1
+          fi
