@@ -106,9 +106,8 @@ jobs:
         run: |
           # If Job 2 was skipped because of notebook changes, this passes safely
           VERSION_RESULT="${{ needs.check-version-new.result }}"
-          RUN_CI="${{ needs.changes.outputs.run_ci }}"
 
-          if [ "$VERSION_RESULT" = "success" ] || [ "$RUN_CI" = "false" ] || [ "$VERSION_RESULT" = "skipped" ]; then
+          if [ "$VERSION_RESULT" = "success" ] || [ "$VERSION_RESULT" = "skipped" ]; then
             echo "All required checks cleared."
             exit 0
           else
