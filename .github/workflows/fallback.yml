@@ -6,8 +6,8 @@ on:
     branches:
       - main
       - "**"
-    paths-ignore:
-      - "notebooks/**" 
+    paths:
+      - "notebooks/**"
       - '.github/workflows/**'
 
 jobs:
