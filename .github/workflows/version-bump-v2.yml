@@ -4,6 +4,7 @@ on:
   pull_request:
     branches: [main]
 
+
 jobs:
   # Job 1: Check which files changed
   changes:
@@ -17,10 +18,8 @@ jobs:
         with:
           filters: |
             src:
-              - '**'
-              - '!notebooks/**'
-              - '!.github/workflows/**'
-
+              - '!(notebooks|.github/workflows)/**'
+              
   # Job 2: Your actual test suite (Runs only if non-notebook changes exist)
   check-version-new:
     needs: changes
