@@ -1,1 +1,1 @@
-print("Hello, World gdh dsgghfdgfgxhnansg. rytj!")
+print("Hello, World gdh dsgghfdgfgxhnansg. rytj guj!")
