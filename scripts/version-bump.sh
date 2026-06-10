@@ -8,7 +8,7 @@ STAGED_FILES=$(git diff --cached --name-only)
 
 # If no files are staged at all, exit early safely
 if [ -z "$STAGED_FILES" ]; then
-    echo "No staged files found. Skipping version bump."
+    echo "No staged files found. Skipping version bump f."
     exit 0
 fi
 
