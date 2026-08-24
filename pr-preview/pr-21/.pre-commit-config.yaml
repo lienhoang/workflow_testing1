@@ -1,0 +1,7 @@
+repos:
+  - repo: local
+    hooks:
+      - id: version-bump
+        name: Auto version bump
+        entry: .pre-commit-hooks/version-bump.sh
+        language: system
