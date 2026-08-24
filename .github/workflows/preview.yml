@@ -25,11 +25,12 @@ jobs:
         run: |
           echo "baseurl: \"/workflow_testing1/pr-preview/pr-${{ github.event.pull_request.number }}\"" > site/_config_preview.yml
 
-      # 2. Build the Jekyll site using BOTH config files into a new temporary directory
-      - name: Build Jekyll Site
+      - name: Prepare Preview Configurations
         if: github.event.action != 'closed'
         run: |
-          bundle exec jekyll build --source site --config site/_config.yml,site/_config_preview.yml --destination dist
+          cat site/_config.yml site/_config_preview.yml > site/_config_temp.yml
+          mv site/_config_temp.yml site/_config.yml
+          rm -f site/_config_preview.yml
 
 
       # 3. Tell the action to look inside your site folder, including your new preview config override
