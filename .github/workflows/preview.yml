@@ -35,6 +35,8 @@ jobs:
       - name: Deploy Preview to GitHub Pages
         uses: rossjrw/pr-preview-action@v1
         with:
-          source-dir: ./site # Change to your build folder (e.g., 'dist' or 'build') if applicable
-          preview-branch: gh-pages # The active branch you deploy your main site from
-          umbrella-dir: pr-preview # The folder name where all previews will live
+          source-dir: site # Keep this so it builds only the folder
+          preview-branch: gh-pages
+          umbrella-dir: pr-preview
+          # This forces Jekyll to map the folder structure relative to the PR subfolder:
+          custom-url: ${{ steps.deploy.outputs.preview-url }} 
