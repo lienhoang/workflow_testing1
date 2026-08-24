@@ -5,4 +5,4 @@ baseurl: "/workflow_testing1"
 url: "https://lienhoang.github.io"
 markdown: kramdown
 plugins:
-  - jekyll-remote-theme
+  - jekyll-remote-themebaseurl: "/workflow_testing1/pr-preview/pr-22"
