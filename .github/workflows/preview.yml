@@ -1,9 +1,9 @@
-name: Deploy GitHub Pages
+name: Deploy Markdown content to Pages
 
 on:
   push:
     branches:
-      - feat/preview2
+     - feat/preview2
 
 permissions:
   contents: read
@@ -12,34 +12,34 @@ permissions:
 
 concurrency:
   group: "pages"
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-
-      - name: Build with Jekyll
-        uses: actions/jekyll-build-pages@v1
-        with:
-          source: ./site # Specify your custom site folder here
-          destination: ./_site
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-
   deploy:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
-    needs: build
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # 1. Set up Jekyll build environment
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      # 2. Build the Markdown files inside your custom folder into HTML
+      - name: Build with Jekyll
+        uses: actions/jekyll-build-pages@v1
+        with:
+          source: './docs'
+          destination: './_site'
+
+      # 3. Upload the built HTML files
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+
+      # 4. Deploy to the web
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
