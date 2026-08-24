@@ -21,7 +21,10 @@ jobs:
           ruby-version: '3.2'
 
       - name: Install Jekyll
-        run: gem install jekyll bundler
+        run: gem install jekyll
+
+      - name: Build Site
+        run: jekyll build
 
       - name: Build PR Site with Custom BaseURL
         # PR previews are served from a subfolder, so we must adjust the site baseurl dynamically
