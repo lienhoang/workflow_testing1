@@ -1,9 +1,9 @@
 ---
-layout: default
-title: Home
+title: Welcome Home
 nav_order: 1
 ---
 
-# Linked Data QC Pages
+# Project Home Documentation
+Welcome to our project space. Navigate using the sidebar menu layout.
 
-This is the main landing page.
+[Read our Setup Guide](./guides/setup.md)

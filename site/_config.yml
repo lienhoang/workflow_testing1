@@ -1,18 +1,20 @@
-title: "Linked Data QC Pages"
-description: "Hierarchical site generated from Jupyter Notebooks"
+title: My Project Documentation
+description: Built with Just the Docs and PR Previews
+
+# Use the official remote theme engine
 remote_theme: just-the-docs/just-the-docs
-baseurl: "/workflow_testing1"
-url: "https://lienhoang.github.io"
-markdown: kramdown
+
+# Crucial: These plugins must be listed to enable the remote theme logic
 plugins:
   - jekyll-remote-theme
   - jekyll-seo-tag
-permalink: pretty
-nav_enabled: true
 
-# Add this block at the very bottom of your site/_config.yml file
+# Generates clean, extensionless URLs (e.g., /guides/setup instead of /guides/setup.html)
+permalink: pretty
+
+# Global defaults to automatically apply the template layout across all markdown files
 defaults:
   - scope:
-      path: "" # Matches all files recursively inside the /site directory
+      path: ""
     values:
-      layout: "default" # Automatically forces the default theme layout
+      layout: "default"
