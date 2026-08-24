@@ -59,7 +59,7 @@ jobs:
         with:
           source: ./site
           destination: ./_site-preview
-          baseurl: /${{ github.event.repository.name }} 
+          baseurl: /${{ github.event.repository.name }}/pr-preview/pr-${{ github.event.number }}
 
       - name: Deploy PR Preview Hierarchy
         uses: rossjrw/pr-preview-action@v1

@@ -6,4 +6,5 @@ url: "https://lienhoang.github.io"
 markdown: kramdown
 plugins:
   - jekyll-remote-theme
+  - jekyll-seo-tag
 permalink: pretty
