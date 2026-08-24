@@ -1,0 +1,8 @@
+title: "Linked Data QC Pages"
+description: "Hierarchical site generated from Jupyter Notebooks"
+remote_theme: just-the-docs/just-the-docs
+baseurl: "/linked-data-pipeline"
+url: "https://ourfuturehealth.github.io"
+markdown: kramdown
+plugins:
+  - jekyll-remote-theme
