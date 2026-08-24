@@ -1,8 +1,9 @@
 title: "Linked Data QC Pages"
 description: "Hierarchical site generated from Jupyter Notebooks"
 remote_theme: just-the-docs/just-the-docs
-baseurl: "/notebooks_gh_pages"
-url: "https://lienhoang.github.io"
 markdown: kramdown
 plugins:
   - jekyll-remote-theme
+
+exclude:
+  - docs/quality
