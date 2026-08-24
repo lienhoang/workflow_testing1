@@ -1,0 +1,40 @@
+name: Deploy PR Preview
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy-preview:
+    runs-on: ubuntu-latest
+    
+    # Grants the required permissions to modify content and post comments
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # OPTIONAL: If your project requires a build step (e.g., React, Astro, Vue), 
+      # uncomment and adjust these lines. Otherwise, delete them if you use plain HTML/CSS.
+      # - name: Setup Node.js
+      #   uses: actions/setup-node@v4
+      #   with:
+      #     node-version: 20
+      # - name: Install & Build
+      #   run: |
+      #     npm ci
+      #     npm run build
+
+      - name: Deploy Preview to GitHub Pages
+        uses: rossjrw/pr-preview-action@v1
+        with:
+          source-dir: . # Change to your build folder (e.g., 'dist' or 'build') if applicable
+          preview-branch: gh-pages # The active branch you deploy your main site from
+          umbrella-dir: pr-preview # The folder name where all previews will live
