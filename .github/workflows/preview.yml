@@ -23,8 +23,10 @@ jobs:
       - name: Install Jekyll
         run: gem install jekyll
 
-      - name: Build Site
-        run: jekyll build
+      - name: Build PR Site with Custom BaseURL
+        run: |
+          jekyll build --baseurl /${{ github.event.repository.name }}/pr-preview/pr-${{ github.event.number }}
+
 
       - name: Build PR Site with Custom BaseURL
         # PR previews are served from a subfolder, so we must adjust the site baseurl dynamically
