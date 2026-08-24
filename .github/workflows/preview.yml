@@ -5,7 +5,7 @@ on:
     types: [opened, synchronize, reopened, closed]
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.element || github.head_ref }}
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
 
 jobs:
@@ -15,23 +15,12 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # - name: Setup Ruby
-      #   uses: ruby/setup-ruby@v1
-      #   with:
-      #     ruby-version: '3.2'
-
-      - name: Install Jekyll
-        run: gem install jekyll
+      - name: Install Jekyll and Plugins
+        run: gem install jekyll jekyll-remote-theme jekyll-seo-tag
 
       - name: Build PR Site with Custom BaseURL
         run: |
           jekyll build --baseurl /${{ github.event.repository.name }}/pr-preview/pr-${{ github.event.number }}
-
-
-      - name: Build PR Site with Custom BaseURL
-        # PR previews are served from a subfolder, so we must adjust the site baseurl dynamically
-        run: |
-          bundle exec jekyll build --baseurl /${{ github.event.repository.name }}/pr-preview/pr-${{ github.event.number }}
 
       - name: Deploy PR Preview
         uses: rossjrw/pr-preview-action@v1

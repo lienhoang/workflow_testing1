@@ -1,6 +1,7 @@
-remote_theme: just-the-docs/just-the-docs
-markdown: kramdown
-plugins:
-  - jekyll-remote-theme
 source: site
 destination: _site
+remote_theme: just-the-docs/just-the-docs
+
+plugins:
+  - jekyll-remote-theme
+  - jekyll-seo-tag
