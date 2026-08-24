@@ -1,47 +1,69 @@
-name: Deploy PR Preview
+name: Deploy Site & PR Previews
 
 on:
+  push:
+    branches: ["main"]
   pull_request:
     types: [opened, synchronize, reopened, closed]
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.event.number || github.ref }}
   cancel-in-progress: true
 
-jobs:
-  deploy-preview:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
+permissions:
+  contents: write
+  pages: write
+  pull-requests: write
+  id-token: write
 
+jobs:
+  # JOB 1: Handles Live Production Deployment when pushed to Main
+  deploy-production:
+    if: github.event_name == 'push'
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v4
 
-      # 1. Dynamically append the PR subdirectory path into a custom Jekyll config file
-      - name: Inject PR Baseurl for Jekyll
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Build Jekyll Site
+        uses: actions/jekyll-build-pages@v1
+        with:
+          source: ./site
+          destination: ./_site
+
+      - name: Upload Artifact
+        uses: actions/upload-pages-artifact@v3
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+  # JOB 2: Handles Hierarchical Previews for Pull Requests
+  deploy-preview:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # We only build if the PR is being opened/updated, skip if it's being closed
+      - name: Build Jekyll Site for Preview
         if: github.event.action != 'closed'
-        run: |
-          echo "baseurl: \"/workflow_testing1/pr-preview/pr-${{ github.event.pull_request.number }}\"" > site/_config_preview.yml
+        uses: actions/jekyll-build-pages@v1
+        with:
+          source: ./site
+          destination: ./_site-preview
 
-            # 2. Force overwrite the production baseurl to prevent path string compounding
-            
-      # This strips out the old baseurl line from your _config.yml and writes the new one
-      - name: Prepare Preview Configurations
-        if: github.event.action != 'closed'
-        run: |
-          sed -i '/baseurl:/d' site/_config.yml
-          cat site/_config.yml site/_config_preview.yml > site/_config_temp.yml
-          mv site/_config_temp.yml site/_config.yml
-          rm -f site/_config_preview.yml
-
-
-
-      # 3. Tell the action to look inside your site folder, including your new preview config override
-      - name: Deploy Preview to GitHub Pages
+      - name: Deploy PR Preview Hierarchy
         uses: rossjrw/pr-preview-action@v1
         with:
-          source-dir: site
+          source-dir: ./_site-preview
           preview-branch: gh-pages
           umbrella-dir: pr-preview
+          action: ${{ github.event.action }}
