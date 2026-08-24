@@ -1,6 +1,7 @@
 ---
 layout: default
 title: P14 Release QC Pages
+parent: Home
 nav_order: 2
 ---
 
