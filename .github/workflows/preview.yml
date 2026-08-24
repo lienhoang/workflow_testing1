@@ -35,6 +35,6 @@ jobs:
       - name: Deploy Preview to GitHub Pages
         uses: rossjrw/pr-preview-action@v1
         with:
-          source-dir: . # Change to your build folder (e.g., 'dist' or 'build') if applicable
+          source-dir: ./site # Change to your build folder (e.g., 'dist' or 'build') if applicable
           preview-branch: gh-pages # The active branch you deploy your main site from
           umbrella-dir: pr-preview # The folder name where all previews will live
