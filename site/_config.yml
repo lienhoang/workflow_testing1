@@ -8,3 +8,11 @@ plugins:
   - jekyll-remote-theme
   - jekyll-seo-tag
 permalink: pretty
+nav_enabled: true
+
+# Add this block at the very bottom of your site/_config.yml file
+defaults:
+  - scope:
+      path: "" # Matches all files recursively inside the /site directory
+    values:
+      layout: "default" # Automatically forces the default theme layout
