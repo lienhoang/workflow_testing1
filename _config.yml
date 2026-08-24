@@ -13,3 +13,6 @@ plugins:
 # Just the Docs settings
 title: My Docs Site
 description: Documentation built with Just the Docs and GitHub Pages.
+
+exclude:
+  - docs/quality_control/
