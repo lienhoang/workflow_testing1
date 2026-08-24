@@ -1,0 +1,20 @@
+title: My Project Documentation
+description: Built with Just the Docs and PR Previews
+
+# Use the official remote theme engine
+remote_theme: just-the-docs/just-the-docs
+
+# Crucial: These plugins must be listed to enable the remote theme logic
+plugins:
+  - jekyll-remote-theme
+  - jekyll-seo-tag
+
+# Generates clean, extensionless URLs (e.g., /guides/setup instead of /guides/setup.html)
+permalink: pretty
+
+# Global defaults to automatically apply the template layout across all markdown files
+defaults:
+  - scope:
+      path: ""
+    values:
+      layout: "default"
