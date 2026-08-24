@@ -11,8 +11,6 @@ concurrency:
 jobs:
   deploy-preview:
     runs-on: ubuntu-latest
-    
-    # Grants the required permissions to modify content and post comments
     permissions:
       contents: write
       pull-requests: write
@@ -21,22 +19,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # OPTIONAL: If your project requires a build step (e.g., React, Astro, Vue), 
-      # uncomment and adjust these lines. Otherwise, delete them if you use plain HTML/CSS.
-      # - name: Setup Node.js
-      #   uses: actions/setup-node@v4
-      #   with:
-      #     node-version: 20
-      # - name: Install & Build
-      #   run: |
-      #     npm ci
-      #     npm run build
+      # 1. Dynamically append the PR subdirectory path into a custom Jekyll config file
+      - name: Inject PR Baseurl for Jekyll
+        if: github.event.action != 'closed'
+        run: |
+          echo "baseurl: \"/workflow_testing1/pr-preview/pr-${{ github.event.pull_request.number }}\"" > site/_config_preview.yml
 
+      # 2. Tell the action to look inside your site folder, including your new preview config override
       - name: Deploy Preview to GitHub Pages
         uses: rossjrw/pr-preview-action@v1
         with:
-          source-dir: site # Keep this so it builds only the folder
+          source-dir: site
           preview-branch: gh-pages
           umbrella-dir: pr-preview
-          # This forces Jekyll to map the folder structure relative to the PR subfolder:
-          custom-url: ${{ steps.deploy.outputs.preview-url }} 
